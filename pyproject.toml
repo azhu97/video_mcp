@@ -1,0 +1,37 @@
+[project]
+name = "clipper-mcp"
+version = "0.1.0"
+description = "Local MCP server that finds key moments in video files and exports them as clips with ffmpeg"
+readme = "README.md"
+authors = [{ name = "Alan Zhu", email = "alanzhu9000@gmail.com" }]
+requires-python = ">=3.11"
+dependencies = [
+    "mcp[cli]>=1.20",
+    "pydantic>=2.7",
+]
+
+[project.optional-dependencies]
+transcribe = ["faster-whisper>=1.0"]
+ocr = ["pyobjc-framework-Vision>=10.0; sys_platform == 'darwin'"]
+
+[project.scripts]
+clipper = "clipper.server:main"
+clipper-mcp = "clipper.server:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-timeout>=2.3"]
+
+[build-system]
+requires = ["uv_build>=0.12.21,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "clipper"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "slow: long-running integration tests",
+    "transcribe: requires faster-whisper",
+]
