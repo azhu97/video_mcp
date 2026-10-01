@@ -79,6 +79,8 @@ class Settings:
     max_parallel: int = 3
     presets: dict[str, dict[str, Any]] = field(default_factory=lambda: dict(DEFAULT_PRESETS))
     whisper_model: str = "small"
+    # Named scoreboard regions for clock detection, e.g. {"synergy_shot_clock": "1001,1010,26,20"}.
+    clock_regions: dict[str, str] = field(default_factory=dict)
 
     @property
     def resolved_log_file(self) -> Path:
@@ -125,6 +127,7 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
         max_parallel=int(pick("CLIPPER_MAX_PARALLEL", "max_parallel") or 3),
         presets=presets,
         whisper_model=str(pick("CLIPPER_WHISPER_MODEL", "whisper_model") or "small"),
+        clock_regions={str(k): str(v) for k, v in (toml.get("clock_regions") or {}).items()},
     )
 
 

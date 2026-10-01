@@ -1,5 +1,9 @@
-.venv/
+.venv
+.venv.nosync/
+.venv 2/
 __pycache__/
 *.pyc
 .pytest_cache/
-tests/fixtures/*.mp4
+tests/fixtures/*
+!tests/fixtures/.gitkeep
+dist/
