@@ -1,4 +1,4 @@
-# clipper-mcp
+   # clipper-mcp
 
 A local [MCP](https://modelcontextprotocol.io) server that lets Claude find key moments in video
 files on your disk and export them as clips with ffmpeg. Everything runs locally: scene and
