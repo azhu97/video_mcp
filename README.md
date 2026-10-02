@@ -142,6 +142,34 @@ ignored.
 Example: *"Export every stretch where the shot clock is ticking in ~/Movies/game.mp4 as separate
 clips (region synergy_shot_clock, start at tip-off)."*
 
+## The analysis cache
+
+Analysis is slow because it has to decode the video. A clock scan looks at a 26×20-pixel region,
+but ffmpeg still decodes every full frame to get there: about 60x real time, so ~3 minutes for a
+3-hour game. Transcription is slower still.
+
+In a conversation, Claude usually calls the same analysis several times: find the spans, then
+"skip the pregame", then "drop anything under 5 seconds", then export. Without a cache, each of
+those calls would decode the whole video again. With it, only the first call is slow; the rest
+take well under a second.
+
+The cache stores raw measurements (for example, how much the clock region changed at each
+sample), not final answers, so changing `sensitivity`, `min_duration` or `start`/`end` re-derives
+results without rescanning. A whole-video scan also serves any later time window.
+
+Nothing needs to be pre-scanned: the first request for a video fills its cache automatically.
+
+| | |
+| --- | --- |
+| **Location** | `~/.cache/clipper/<video id>/` (`CLIPPER_CACHE` to change), shared by every MCP client on the machine |
+| **What's cached** | probe info, keyframes, scene cuts, loudness curve, clock scans, transcripts |
+| **Invalidation** | the video id is a hash of path + size + modification time, so renaming, moving or editing a video triggers a fresh analysis instead of serving stale results |
+| **Separate entries** | a different clock region is a new scan (sensitivity and filters are not); a scan of only part of a video is not reused for the whole video |
+| **Size** | small: about 1–2 MB for a 3-hour game's clock scan |
+| **Cleanup** | none automatic; deleting the folder is always safe (things are just recomputed) |
+
+Cached analyses are also exposed as MCP resources (`clipper://videos`, `clipper://analysis/...`).
+
 ## How cutting works
 
 | Mode | Speed | Quality | Start accuracy |
